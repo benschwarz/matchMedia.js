@@ -60,17 +60,35 @@ window.matchMedia = window.matchMedia || (function(doc, undefined){
     if( mqSupport ) {
       return mqRun( mq );
     } else {
-      var min = mq.match( /\(min\-width[\s]*:[\s]*([\s]*[0-9\.]+)(px|em)[\s]*\)/ ) && parseFloat( RegExp.$1 ) + ( RegExp.$2 || "" ),
-          max = mq.match( /\(max\-width[\s]*:[\s]*([\s]*[0-9\.]+)(px|em)[\s]*\)/ ) && parseFloat( RegExp.$1 ) + ( RegExp.$2 || "" ),
-          minnull = min === null,
-          maxnull = max === null,
-          currWidth = doc.body.offsetWidth,
+      var minW = mq.match( /\(min\-width[\s]*:[\s]*([\s]*[0-9\.]+)(px|em)[\s]*\)/ ) && parseFloat( RegExp.$1 ) + ( RegExp.$2 || "" ),
+          maxW = mq.match( /\(max\-width[\s]*:[\s]*([\s]*[0-9\.]+)(px|em)[\s]*\)/ ) && parseFloat( RegExp.$1 ) + ( RegExp.$2 || "" ),
+          minWnull = minW === null,
+          maxWnull = maxW === null,
+          
+          minH = mq.match( /\(min\-height[\s]*:[\s]*([\s]*[0-9\.]+)(px|em)[\s]*\)/ ) && parseFloat( RegExp.$1 ) + ( RegExp.$2 || "" ),
+          maxH = mq.match( /\(max\-height[\s]*:[\s]*([\s]*[0-9\.]+)(px|em)[\s]*\)/ ) && parseFloat( RegExp.$1 ) + ( RegExp.$2 || "" ),
+          minHnull = minH === null,
+          maxHnull = maxH === null,
+
+          currWidth  = docElem.clientWidth,
+          currHeight = docElem.clientHeight,
           em = 'em';
+
+      if( !!minW ) { minW = parseFloat( minW ) * ( minW.indexOf( em ) > -1 ? ( eminpx || getEmValue() ) : 1 ); }
+      if( !!maxW ) { maxW = parseFloat( maxW ) * ( maxW.indexOf( em ) > -1 ? ( eminpx || getEmValue() ) : 1 ); }
+      if( !!minH ) { minH = parseFloat( minH ) * ( minH.indexOf( em ) > -1 ? ( eminpx || getEmValue() ) : 1 ); }
+      if( !!maxH ) { maxH = parseFloat( maxH ) * ( maxH.indexOf( em ) > -1 ? ( eminpx || getEmValue() ) : 1 ); }
       
-      if( !!min ) { min = parseFloat( min ) * ( min.indexOf( em ) > -1 ? ( eminpx || getEmValue() ) : 1 ); }
-      if( !!max ) { max = parseFloat( max ) * ( max.indexOf( em ) > -1 ? ( eminpx || getEmValue() ) : 1 ); }
-      
-      bool = ( !minnull || !maxnull ) && ( minnull || currWidth >= min ) && ( maxnull || currWidth <= max );
+      bool = (
+          ( !minWnull || !maxWnull || !minHnull || !maxHnull) && 
+          
+          (
+              ( minWnull || currWidth  >= minW ) && 
+              ( maxWnull || currWidth  <= maxW ) && 
+              ( minHnull || currHeight >= minH ) && 
+              ( maxHnull || currHeight <= maxH )
+          )
+      );
 
       return { matches: bool, media: mq };
     }
